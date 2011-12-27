@@ -64,19 +64,19 @@ class matrixCube {
 	int front;	/**< Numer ściany, na którą patrzymy */
 	int head;	/**< Numer ściany, która jest na górze */
 
-	pair<int,int> id(int x, int y) { /**< Funkcja identycznościowa (obrót współrzędnych o zero stopni). */
+	pair<int,int> id(int x, int y) { /** Funkcja identycznościowa (obrót współrzędnych o zero stopni). */
 		return pair<int,int>(x,y);
 	}
 	
-	pair<int,int> cw(int x, int y) { /**< Obrót współrzędnych zgodnie ze wskazówkami zegara. */
+	pair<int,int> cw(int x, int y) { /** Obrót współrzędnych zgodnie ze wskazówkami zegara. */
 		return pair<int,int>(y,3-x);
 	}
 	
-	pair<int,int> ccw(int x, int y) { /**< Obrót współrzędnych przeciwnie do ruchu wskazówek zegara. */
+	pair<int,int> ccw(int x, int y) { /** Obrót współrzędnych przeciwnie do ruchu wskazówek zegara. */
 		return pair<int,int>(3-y,x);
 	}
 	
-	pair<int,int> ud(int x, int y) { /**< Obrót współrzędnych o 180 stopni. */
+	pair<int,int> ud(int x, int y) { /** Obrót współrzędnych o 180 stopni. */
 		return pair<int,int>(3-x,3-y);
 	}
 
@@ -104,20 +104,29 @@ public:
 	 * @param rDepth Ilość poziomów, które obracamy.
 	 * @param rTimes Ilość obrotów. Obroty zgodnie ze wskazówkami zegara. By obrócić w prawo podajemy rTimes=-1.
 	 */
-	void rotate(int rFace, int rDepth, int rTimes);
+	matrixCube& rotate(int rFace, int rDepth, int rTimes);
 	friend ostream& operator<<(ostream&, matrixCube&);
 };
 
 int main() {
-	matrixCube test;
-	cout << "bla\n";
-	cout << test;
-	cout << "ble\n";
-	cout << endl;
-	test.rotate(2, 1, 1);
-	cout << test;
-	cout << "bli\n";
-	cout << endl;
+	matrixCube test00;
+	matrixCube test01;
+	matrixCube test02;
+	matrixCube test03;
+	matrixCube test04;
+	matrixCube test05;
+	matrixCube test105;
+	cout << "test00:\n" << test00.rotate(0, 1, 1);
+	cout << "test01:\n" << test01.rotate(1, 1, 1);
+	cout << "test02:\n" << test02.rotate(2, 1, 1);
+	cout << "test03:\n" << test03.rotate(3, 1, 1);
+	cout << "test04:\n" << test04.rotate(4, 1, 1);
+	cout << "test05:\n" << test05.rotate(5, 1, 1);
+	cout << "test05:\n" << test05.rotate(5, 1, 1);
+	cout << "test105:\n";
+	cout << test105.rotate(1, 1, 1);
+	cout << test105.rotate(0,2,1);
+	cout << test105.rotate(5,1,1);
 	return 0;
 }
 
@@ -188,9 +197,9 @@ ostream& operator<<(ostream &out, matrixCube &m) {
 }
 
 
-void matrixCube::rotate(int rFace, int rDepth, int rTimes) {
+matrixCube& matrixCube::rotate(int rFace, int rDepth, int rTimes) {
 
-	/**
+	/*
 	 * Tablica obrotów.
 	 * Zawiera informacje o przejściu krawędzi na krawędź przy danym obrocie.
 	 *
@@ -207,16 +216,16 @@ void matrixCube::rotate(int rFace, int rDepth, int rTimes) {
 		{2,1,4,3}
 	};
 
-	/**
+	/*
 	 * Ten potworek tutaj to dwuwymiarowa tablica wskaźników na funkcje
 	 * składowe matrixCube przyjmujące dwa inty i zwracające pare intów.
 	 */
 	pair<int,int> (matrixCube::*convCoords[][4])(int,int) = { 
 		{ &matrixCube::id,  &matrixCube::id,  &matrixCube::id,  &matrixCube::id  },
-		{ &matrixCube::cw,  &matrixCube::ccw, &matrixCube::cw,  &matrixCube::cw  },
+		{ &matrixCube::ccw, &matrixCube::cw,  &matrixCube::ccw, &matrixCube::ccw },
 		{ &matrixCube::ud,  &matrixCube::cw,  &matrixCube::id,  &matrixCube::ccw },
-		{ &matrixCube::ccw, &matrixCube::ccw, &matrixCube::ccw, &matrixCube::cw  },
-		{ &matrixCube::id,  &matrixCube::ccw, &matrixCube::ud,  &matrixCube::cw  },
+		{ &matrixCube::cw,  &matrixCube::cw,  &matrixCube::cw,  &matrixCube::ccw },
+		{ &matrixCube::id,  &matrixCube::cw,  &matrixCube::ud,  &matrixCube::ccw },
 		{ &matrixCube::ud,  &matrixCube::ud,  &matrixCube::ud,  &matrixCube::ud  },
 	};
 
@@ -228,7 +237,7 @@ void matrixCube::rotate(int rFace, int rDepth, int rTimes) {
 
 	rTimes %= 4;
 	if(!rTimes)
-		return;
+		return *this;
 
 	for(i=0;i<6;++i)
 		for(j=0;j<4;++j)
@@ -246,7 +255,7 @@ void matrixCube::rotate(int rFace, int rDepth, int rTimes) {
 		for(cnt = 0; cnt<4; ++cnt) { // dla każdej ściany z otoczenia
 			i = rots[rFace][cnt];
 			i2 = rots[rFace][(cnt+1)%4];
-			cout << "Ściana " << i << " w ścianę " << i2 << "\n";
+			//cout << "Ściana " << i << " w ścianę " << i2 << "\n";
 			pair<int,int> (matrixCube::*conv)(int,int) = convCoords[rFace][cnt];
 			pair<int,int> (matrixCube::*conv2)(int,int) = convCoords[rFace][(cnt+1)%4];
 			for(j=0; j<rDepth; ++j) {
@@ -257,7 +266,7 @@ void matrixCube::rotate(int rFace, int rDepth, int rTimes) {
 					pair<int,int> c2 = (this->*conv2)(j,k);
 					int &jj2 = c2.first;
 					int &kk2 = c2.second;
-					cout << "\t[" << i2 << "][" << jj2 << "][" << kk2 << "] <-- [" << i << "][" << jj << "][" << kk << "]\n";
+					//cout << "\t[" << i2 << "][" << jj2 << "][" << kk2 << "] <-- [" << i << "][" << jj << "][" << kk << "]\n";
 					nMatrix[i2][jj2][kk2] = matrix[i][jj][kk];
 				}
 			}
@@ -268,5 +277,7 @@ void matrixCube::rotate(int rFace, int rDepth, int rTimes) {
 				for(k=0;k<4;++k)
 					matrix[i][j][k] = nMatrix[i][j][k];
 	}
+
+	return *this;
 }
 
