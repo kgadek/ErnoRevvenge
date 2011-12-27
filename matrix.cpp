@@ -104,6 +104,14 @@ public:
 	 * @param rTimes Ilość obrotów. Obroty zgodnie ze wskazówkami zegara. By obrócić w prawo podajemy rTimes=-1.
 	 */
 	matrixCube& rotate(int rFace, int rDepth, int rTimes);
+
+	/**
+	 * Dostęp do wewnętrznej macierzy.
+	 */
+	inline int& operator()(int i, int j, int k) {
+		return matrix[i][j][k];
+	}
+
 	friend ostream& operator<<(ostream&, matrixCube&);
 };
 
@@ -116,6 +124,7 @@ int main() {
 	matrixCube test05;
 	matrixCube test105;
 	matrixCube test1;
+	matrixCube testA;
 	cout << "test00:\n" << test00.rotate(0, 1, 1);
 	cout << "test01:\n" << test01.rotate(1, 1, 1);
 	cout << "test02:\n" << test02.rotate(2, 1, 1);
@@ -128,6 +137,9 @@ int main() {
 	cout << test105.rotate(0,2,1);
 	cout << test105.rotate(5,1,1);
 	cout << "test1:\n" << test1.rotate(1,4,1);
+	cout << "testA:\n" << testA;
+	testA(0,0,0) = 2;
+	cout << testA;
 	return 0;
 }
 
@@ -136,8 +148,8 @@ int main() {
  * Wyświetlanie kostki na ekranie.
  *
  * Funkcja specyficzna dla powłoki Linuksa.
- * @params out Potok wyjściowy.
- * @params m Kostka do wyświetlenia.
+ * @param out Potok wyjściowy.
+ * @param m Kostka do wyświetlenia.
  * @see geColour
  * @see setColour
  */
@@ -223,10 +235,7 @@ matrixCube& matrixCube::rotate(int rFace, int rDepth, int rTimes) {
 	if(!rTimes)
 		return *this;
 
-	for(i=0;i<6;++i)
-		for(j=0;j<4;++j)
-			for(k=0;k<4;++k)
-				nMatrix[i][j][k] = matrix[i][j][k];
+	copy((int*)matrix, (int*)matrix+6*4*4, (int*)nMatrix);
 
 	// obrót przedniej ściany
 	for(cnt = 0; cnt<rTimes; ++cnt)
@@ -254,10 +263,7 @@ matrixCube& matrixCube::rotate(int rFace, int rDepth, int rTimes) {
 			}
 		}
 
-		for(i=0;i<6;++i)
-			for(j=0;j<4;++j)
-				for(k=0;k<4;++k)
-					matrix[i][j][k] = nMatrix[i][j][k];
+		copy((int*)nMatrix, (int*)nMatrix+6*4*4, (int*)matrix);
 	}
 
 	return *this;
