@@ -43,6 +43,7 @@ void setColour(ostream &out, int c=0) {
  *   - k - kolumna
  */
 class matrixCube {
+protected:
 	/**
 	 * Macierz opisująca ustawienie kostki.
 	 *
@@ -61,8 +62,6 @@ class matrixCube {
 	 * @see operator<<(ostream&, matrixCube&);
 	 */
 	int matrix[6][4][4];
-	int front;	/**< Numer ściany, na którą patrzymy */
-	int head;	/**< Numer ściany, która jest na górze */
 
 	pair<int,int> id(int x, int y) { /** Funkcja identycznościowa (obrót współrzędnych o zero stopni). */
 		return pair<int,int>(x,y);
@@ -86,7 +85,7 @@ public:
 	 *
 	 * Ustawia (ułożoną) kostkę w położeniu domyślnym, tj. białym do przodu, czerwonym do góry
 	 */
-	matrixCube() : front(2), head(0) {
+	matrixCube() {
 		int i,j,k;
 		for(i=0; i<6; ++i)
 			for(j=0;j<4;++j)
@@ -116,6 +115,7 @@ int main() {
 	matrixCube test04;
 	matrixCube test05;
 	matrixCube test105;
+	matrixCube test1;
 	cout << "test00:\n" << test00.rotate(0, 1, 1);
 	cout << "test01:\n" << test01.rotate(1, 1, 1);
 	cout << "test02:\n" << test02.rotate(2, 1, 1);
@@ -127,8 +127,10 @@ int main() {
 	cout << test105.rotate(1, 1, 1);
 	cout << test105.rotate(0,2,1);
 	cout << test105.rotate(5,1,1);
+	cout << "test1:\n" << test1.rotate(1,4,1);
 	return 0;
 }
+
 
 /**
  * Wyświetlanie kostki na ekranie.
@@ -140,24 +142,6 @@ int main() {
  * @see setColour
  */
 ostream& operator<<(ostream &out, matrixCube &m) {
-	/*
-	 *      0----+
-	 *      |    |
-	 *      |    |
-	 *      |    |
-	 *      |    |
-	 * 1----2----3----4----+
-	 * |    |    |    |    |
-	 * |    |    |    |    |
-	 * |    |    |    |    |
-	 * |    |    |    |    |
-	 * +----5----+----+----+
-	 *      |    |
-	 *      |    |
-	 *      |    |
-	 *      |    |
-	 *      +----+
-	 */
 	int i,j,k;
 	setColour(out); // default
 	out << "     +----+\n";
@@ -252,10 +236,9 @@ matrixCube& matrixCube::rotate(int rFace, int rDepth, int rTimes) {
 
 	// obrót pozostałych ścian
 	while(rTimes-- > 0) {
-		for(cnt = 0; cnt<4; ++cnt) { // dla każdej ściany z otoczenia
+		for(cnt = 0; cnt<4; ++cnt) {
 			i = rots[rFace][cnt];
 			i2 = rots[rFace][(cnt+1)%4];
-			//cout << "Ściana " << i << " w ścianę " << i2 << "\n";
 			pair<int,int> (matrixCube::*conv)(int,int) = convCoords[rFace][cnt];
 			pair<int,int> (matrixCube::*conv2)(int,int) = convCoords[rFace][(cnt+1)%4];
 			for(j=0; j<rDepth; ++j) {
@@ -266,7 +249,6 @@ matrixCube& matrixCube::rotate(int rFace, int rDepth, int rTimes) {
 					pair<int,int> c2 = (this->*conv2)(j,k);
 					int &jj2 = c2.first;
 					int &kk2 = c2.second;
-					//cout << "\t[" << i2 << "][" << jj2 << "][" << kk2 << "] <-- [" << i << "][" << jj << "][" << kk << "]\n";
 					nMatrix[i2][jj2][kk2] = matrix[i][jj][kk];
 				}
 			}
