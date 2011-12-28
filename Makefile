@@ -6,7 +6,7 @@ LDFLAGS		=	-lm -L/usr/tools/lib
 SRC			=	matrix.cpp
 .PHONY:		clean all doc
 
-all: $(SRC:%.cpp=%) doc
+all: doc $(SRC:%.cpp=%)
 	ctags -R --c++-kinds=+p --fields=+iaS --extra=+q .
 	echo $? | sed 's/ /\n/g' > .gitignore
 	cat .gitignore.base >> .gitignore

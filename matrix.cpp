@@ -190,6 +190,7 @@ ostream& operator<<(ostream &out, matrixCube &m) {
 		out << "|\n";
 	}
 	out << "     +----+\n";
+	return out;
 }
 
 
