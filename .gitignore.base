@@ -1,0 +1,5 @@
+.gitignore
+TAGS
+tags
+.*swp
+core*
