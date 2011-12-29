@@ -116,15 +116,11 @@ struct matrixCube {
 	 */
 	matrixCube& rotate(int rFace, int rDepth, int rTimes);
 
-	/**
-	 * Dostęp do wewnętrznej macierzy.
-	 */
-	inline int& operator()(int i, int j, int k) {
-		return matrix[i][j][k];
-	}
-
 	template <int R>
 	friend ostream& operator<<(ostream&, matrixCube<R>&);
+
+	template <int R>
+	friend istream& operator>>(istream&, matrixCube<R>&);
 };
 
 int main() {
@@ -150,16 +146,40 @@ int main() {
 	cout << test105.rotate(5,1,1);
 	cout << "test1:\n" << test1.rotate(1,4,1);
 	cout << "testA:\n" << testA;
-	testA(0,0,0) = 0;
+	testA.matrix[0][0][0] = 0;
 	cout << testA << testA.rotate(2,1,1);
+
+	matrixCube<4> testReal;
+	cout << "####################\n";
+	cin >> testReal;
+	cout << testReal;
+
 	return 0;
+}
+
+/**
+ * Wczytywanie kostki.
+ *
+ * @param in Strumień wejściowy.
+ * @param m Kostka, do której zostaną wczytane dane.
+ */
+template <int D>
+istream& operator>>(istream &in, matrixCube<D> &m) {
+	int i,j,k;
+
+	for(i=0; i<6; ++i)
+		for(j=0; j<D; ++j)
+			for(k=0; k<D; ++k)
+				cin >> m.matrix[i][j][k];
+
+	return in;
 }
 
 /**
  * Wyświetlanie kostki na ekranie.
  *
  * Funkcja specyficzna dla powłoki Linuksa.
- * @param out Potok wyjściowy.
+ * @param out Strumień wyjściowy.
  * @param m Kostka do wyświetlenia.
  * @see geColour
  * @see setColour
