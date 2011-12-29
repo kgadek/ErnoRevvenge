@@ -42,6 +42,8 @@ void setColour(std::ostream &out, int c=0) {
  *   - i -- numer ściany
  *   - j -- wiersz
  *   - k -- kolumna
+ *
+ * @tparam D Rozmiar kostki
  */
 template <int D>
 struct matrixCube {
@@ -117,19 +119,90 @@ struct matrixCube {
 	 */
 	matrixCube& rotate(int rFace, int rDepth, int rTimes);
 
+	/**
+	 * Wyświetlanie kostki na ekranie.
+	 *
+	 * Funkcja specyficzna dla powłoki Linuksa.
+	 * @param out Strumień wyjściowy.
+	 * @param m Kostka do wyświetlenia.
+	 * @see geColour
+	 * @see setColour
+	 */
 	template <int R>
-	friend std::ostream& operator<<(std::ostream&, matrixCube<R>&);
+	friend std::ostream& operator<<(std::ostream &out, matrixCube<R> &m);
 
+	/**
+	 * Wczytywanie kostki.
+	 *
+	 * @param in Strumień wejściowy.
+	 * @param m Kostka, do której zostaną wczytane dane.
+	 */
 	template <int R>
-	friend std::istream& operator>>(std::istream&, matrixCube<R>&);
+	friend std::istream& operator>>(std::istream &in, matrixCube<R> &m);
+
+	/**
+	 * Stwierdza, czy kostka jest ułożona.
+	 *
+	 * @warning Nie jest sprawdzane, czy kostka jest poprawna. Co istotne - nie
+	 *  są sprawdzane wartości pól. Jeśli wartość nie będzie z zakresu [0,5] to
+	 *  w najlepszym wypadku program się wywali.
+	 * @see isCorrect
+	 * @return True \f$\iff\f$ kostka jest ułożona.
+	 */
+	bool isSolved() {
+		int i,j,k;
+		bool colours[5] = {0,0,0,0,0};
+		int currColour;
+		for(i=0; i<5; ++i) {
+			currColour = matrix[i][0][0];
+			if(colours[currColour])
+				return false;
+			for(j=0; j<D; ++j)
+				for(k=0; k<D; ++k)
+					if(matrix[i][j][k] != currColour)
+						return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Sprawdzenie poprawności kostki.
+	 *
+	 * Nie jest jednak sprawdzane, czy taki układ jest możliwy do wygenerowania --
+	 * poniższy test sprawdza jedynie, czy
+	 *   - elementy mają dobre kolory (zakres [0,5])
+	 *   - ilość elementów w danym kolorze jest właściwa
+	 * 
+	 * @returns True \f$\iff\f$ kostka jest poprawna.
+	 */
+	bool isCorrect() {
+		int i,j,k,jj,kk;
+		const int cSize = (D+1)/2;
+		int colours[5][cSize][cSize];
+		int val;
+		for(i = 0; i<5; ++i)
+			for(j = 0; j<cSize; ++j)
+				for(k = 0; k<cSize; ++k)
+					colours[i][j][k] = 0;
+		for(i = 0; i<5; ++i) {
+			for(j = 0; j<D; ++j) {
+				for(k = 0; k<D; ++k) {
+					val = matrix[i][j][k];
+					if(val < 0 || val > 5)
+						return false;
+					jj = (j >= cSize) ? (cSize-j+1) : j;
+					kk = (k >= cSize) ? (cSize-k+1) : k;
+					if( ++(colours[i][jj][kk]) > 4) {
+						std::cout << "!" << i << j << k << jj << kk << colours[i][jj][kk] << "\n";
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
 };
 
-/**
- * Wczytywanie kostki.
- *
- * @param in Strumień wejściowy.
- * @param m Kostka, do której zostaną wczytane dane.
- */
 template <int D>
 std::istream& operator>>(std::istream &in, matrixCube<D> &m) {
 	int i,j,k;
@@ -142,15 +215,6 @@ std::istream& operator>>(std::istream &in, matrixCube<D> &m) {
 	return in;
 }
 
-/**
- * Wyświetlanie kostki na ekranie.
- *
- * Funkcja specyficzna dla powłoki Linuksa.
- * @param out Strumień wyjściowy.
- * @param m Kostka do wyświetlenia.
- * @see geColour
- * @see setColour
- */
 template <int D>
 std::ostream& operator<<(std::ostream &out, matrixCube<D> &m) {
 	static std::string dashes = std::string(D, '-') + "+";
